@@ -10,7 +10,7 @@
 #include "column.h"
 #include "list.h"
 #include "cdataframe.h"
-#define REALOC_SIZE 256
+#define REALLOC_SIZE 256
 
 
 /**

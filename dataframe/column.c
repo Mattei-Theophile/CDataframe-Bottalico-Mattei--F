@@ -6,76 +6,99 @@
 
 #include "column.h"
 
-// Vous pouvez lire le projet pour comprendre un peu le code parce que le prof explique certaines fonctions
+/*Information du fichier
+ *Projet de programmation C - CDataframe - Matteï Théophile et Bottalico Thomas
+ *
+ * Column.c permet d'avoir toutes les fonctions permettant de gérer le CDATAFRAME comme la supression et l'ajout
+ * de colonne/ligne mais aussi changer le nom des colonnes, la conversion des valeurs en chaine de caractère
+ * et l'ajout dans le tableau
+ */
+
+
+//
+// ~~~~~~ colonnes ~~~~~~
+//
 
 /**
-* @brief: create a column
-* param1: name of the column
-* param2: type of the column
+* @brief: création d'une colonne
+* param1: nom de la colonne
+* param2: type de la colonne
 */
 COLUMN *create_column(char *title, ENUM_TYPE type) {
 
     COLUMN *col = (COLUMN *) malloc(sizeof(COLUMN));
-    if (col == NULL) {
-        return NULL;
-    }
+    if (col == NULL) return NULL;
     else{
         col->name = title;
         col->physical_size = 0;
         col->logical_size = 0;
         col->type = type;
         col->data = NULL;
-        col->index = NULL;
         return col;
     }
 }
 
 /**
-* @brief: Column deletion
-* param1: Pointer to the CDataframe to delete
-*/
-void delete_cdataframe(CDATAFRAME **cdf){
-    lst_erase(*cdf);
-    free(cdf);
-}
-
-
-/**
-* @brief: add a column in the CDATAFRAME at the end
-* param1: Pointer to the CDataframe
-* param2: Pointer to the name of the new column
-* param3: type of the new column
+* @brief: ajoute une colonne à la queue du CDATAFRAME
+* param1: pointeur sur le CDATAFRAME
+* param2: pointeur sur le nom de la nouvelle colonne
+* param3: type de la nouvelle colonne
 */
 void add_column(CDATAFRAME *cdf, char* title, ENUM_TYPE type){
     COLUMN *data = create_column(title, type);
-    lnode *tmp = lst_create_lnode(data);
-    lst_insert_tail(cdf,tmp);
+    lnode *node = lst_create_lnode(data);
+    lst_insert_tail(cdf,node);
 }
 
 /**
-* @breif: Delete column by name
-* @param1: Pointer to the CDataframe
-* @param2: Column name
- * quelques problèmes
+* @breif: supression de la colonne
+* @param1: pointeur sur le CDATAFRAME
+* @param2: position de la colonne à supprimer, toujours prendre
 */
 void delete_column(CDATAFRAME *cdf, int index){
-    lnode *tmp = cdf->head;
+    lnode *node = cdf->head;
     COLUMN *col;
-    for( int i = 0; i < index; i++) {
-        tmp = tmp->next;
+    //parcour le tableau jusqu'à colonne == index
+    for( int i = 0; i <= index; i++) {
+        node = node->next;
     }
-    col = tmp->data;
-    lst_delete_lnode(cdf, tmp);
+    col = node->data;
+    lst_delete_lnode(cdf, node);
     free(col->data);
     free(col);
 
 }
 
+/**
+* @brief: renommer une colonne
+* param1: Pointeur sur le CDATAFRAME
+* param2: la position de la colonne à renommer
+* param3: Pointeur sur le nouveau nom de la colonne
+*/
+void rename_column(CDATAFRAME *cdf, int index, char *new_name){
+    printf("\n");
+    if (cdf != NULL){
+        lnode *tmp = cdf->head;
+        COLUMN  *col = tmp->data;
+        for (int i=0; i <= index; i++){
+            tmp = tmp->next;
+            col = tmp->data;
+        }
+        col->name = new_name;
+    }
+}
+
+
+//
+// ~~~~~~ Lignes ~~~~~~
+//
+
 
 /**
-* @brief: add a row in the CDATAFRAME
-* param1: Pointer to the CDataframe to delete
-* param2: index of the new row start at 0
+* @brief: ajout d'une ligne au CDATAFRAME
+* param1: Pointeur sur le CDATAFRAME
+* param2: la position de la nouvelle ligne à rajouter
+* param2: tableau de pointeur qui stocke tous les types de valeurs
 */
 void add_row(CDATAFRAME *cdf, unsigned  int index, void* value_tab){
     if (cdf != NULL){
@@ -86,17 +109,17 @@ void add_row(CDATAFRAME *cdf, unsigned  int index, void* value_tab){
             COLUMN* col = node->data;
 
             if(col->physical_size <= col->logical_size){
-                COL_TYPE *tmp = realloc(col->data, REALOC_SIZE);
+                COL_TYPE *tmp = realloc(col->data, REALLOC_SIZE);
                 if(tmp == NULL) printf("Problème dans l'ajout de la ligne");
-                col->physical_size = col->physical_size + REALOC_SIZE;
+                col->physical_size = col->physical_size + REALLOC_SIZE;
                 *col->data = tmp;
-                tmp = NULL;
+                free(tmp);
             }
 
 
             insert_value(col, &value_tab);
             void * tampon;
-            for (unsigned int k= col->logical_size; index == col->logical_size; k--){
+            for (unsigned int k= col->logical_size; index == k; k--){
                 tampon =col->data[k+1];
                 col->data[k+1] = col->data[k];
             }
@@ -108,9 +131,9 @@ void add_row(CDATAFRAME *cdf, unsigned  int index, void* value_tab){
 }
 
 /**
-* @brief: Column deletion
-* param1: Pointer to the CDataframe
-* param2: index of the delete row start at 0
+* @brief: supression d'une colonne
+* param1: Pointeur sur le CDATAFRAME
+* param2: la position de la ligne à supprimer
 */
 void delete_row(CDATAFRAME *cdf, unsigned int index){
     if (cdf != NULL){
@@ -131,20 +154,20 @@ void delete_row(CDATAFRAME *cdf, unsigned int index){
     }
 }
 
-
+//
+// ~~~~~~ valeur et conversion ~~~~~~
+//
 
 /**
-* @brief: convert a specific value of the column in strings
-* param1: Pointer to the column
-* param2: index for know the data to convert
-* param3: Pointer to the stockage of result
-* param4: size of strings
+* @brief: convertie une valeur spécifique dans un chaîne de caractère
+* param1: Pointeur sur la colonne
+* param2: position de la valeur dans la colonne de donnée
+* param3: Pointeur sur le tableau qui stocke le résultat
+* param4: taille du tableau
 */
 void convert_value(COLUMN *col, unsigned long long int i, char *str, int size){
-    // la fonction snprintf permet de transformer un type choisi en chaîne de caractère stocké dans str avec une taille <= à la taille de str
     switch(col->type){
         case NULLVAL:
-
             snprintf(str, size, "%p", *((void**)col->data[i]));
             break;
 
@@ -181,75 +204,74 @@ void convert_value(COLUMN *col, unsigned long long int i, char *str, int size){
 
 
 /**
-* @brief: insert_value at the end of the column
-* param1: Pointer to the column
-* param1: Pointer on the value to be add
+* @brief: insère une valeur à la fin de la colonne
+* param1: Pointeur sur la colonne
+* param1: Pointeur sur l'adresse de la valeur à ajouter
 */
 int insert_value(COLUMN *col, void *value){
     if (col != NULL){
 
-        // on regarde s'il existe déjà un tableau sinon on lui alloue de l'espace
+        //allocation de la mémoire et réallo
         if (col->physical_size == 0){
-            // l'espace donné doit avoir la taille stocker le type de colonne
-            // donc on demande la taille que fait un type et on le multiplie avec le nombre de case qu'on veut
-            col->data = (COL_TYPE**) malloc(sizeof(COL_TYPE)*REALOC_SIZE);
+            col->data = (COL_TYPE**) malloc(sizeof(COL_TYPE)*REALLOC_SIZE);
             if (col->data == NULL) return 0;
             col->physical_size = 256;
 
         }
-        // quand le tableau est plein, on lui redonne plus d'espace
+
         if(col->physical_size <= col->logical_size){
-            COL_TYPE *tmp = realloc(col->data, col->physical_size + REALOC_SIZE);
+            COL_TYPE *tmp = realloc(col->data, col->physical_size + REALLOC_SIZE);
             if(tmp == NULL) return 0;
-            // on indique qu'on a augmenté la taille pour dire au programme que c'est bon il n'a aucun problème
-            col->physical_size = col->physical_size + REALOC_SIZE;
-            // on fait pointer le nouveau tableau sur les paramètres de la structure afin qu'on puisse y acéder
+
+            col->physical_size = col->physical_size + REALLOC_SIZE;
+
             *col->data = tmp;
             tmp = NULL;
         }
 
-        // on regarde le type de la structure (ENUM_type qu'on peut retrouver dans le column.h)
         switch(col->type){
-            //ce sera la même utilité pour chaque case
-            //on donne un espace en fonction du type de la colonne
-            // puis on fait un cast de cette valeur/de l'espace dans le tableau pour changer les types
 
-            case NULLVAL:
-                col->data[col->logical_size] = (COL_TYPE *) malloc (sizeof(void*));
-                *((void**)col->data[col->logical_size])= *((void**)value);
-                break;
+                case NULLVAL:
+                    col->data[col->logical_size] = (COL_TYPE *) malloc (sizeof(void*));
+                    *((void**)col->data[col->logical_size])= *((void**)value);
+                    break;
 
-            case UINT:
-                col->data[col->logical_size] = (COL_TYPE *) malloc (sizeof(unsigned int));
-                *((unsigned int*)col->data[col->logical_size])= *((unsigned int*)value);
-                break;
+                case UINT:
+                    if (value >= 0) {
+                        col->data[col->logical_size] = (COL_TYPE *) malloc(sizeof(unsigned int));
+                        *((unsigned int *) col->data[col->logical_size]) = *((unsigned int *) value);
+                    }
+                    else {
+                        return 0;
+                    }
+                    break;
 
-            case INT:
-                col->data[col->logical_size] = (COL_TYPE *) malloc (sizeof( int));
-                *((int*)col->data[col->logical_size])= *((int*)value);
-                break;
+                case INT:
+                    col->data[col->logical_size] = (COL_TYPE *) malloc (sizeof( int));
+                    *((int*)col->data[col->logical_size])= *((int*)value);
+                    break;
 
-            case CHAR:
-                col->data[col->logical_size] = (COL_TYPE *) malloc (sizeof(char));
-                *((char*)col->data[col->logical_size])= *((char*)value);
-                break;
+                case CHAR:
+                    col->data[col->logical_size] = (COL_TYPE *) malloc (sizeof(char));
+                    *((char*)col->data[col->logical_size])= *((char*)value);
+                    break;
 
-            case FLOAT:
-                col->data[col->logical_size] = (COL_TYPE *) malloc (sizeof(float));
-                *((float*)col->data[col->logical_size])= *((float*)value);
-                break;
+                case FLOAT:
+                    col->data[col->logical_size] = (COL_TYPE *) malloc (sizeof(float));
+                    *((float*)col->data[col->logical_size])= *((float*)value);
+                    break;
 
-            case DOUBLE:
-                col->data[col->logical_size] = (COL_TYPE *) malloc (sizeof(double));
-                *((double*)col->data[col->logical_size])= *((double*)value);
-                break;
+                case DOUBLE:
+                    col->data[col->logical_size] = (COL_TYPE *) malloc (sizeof(double));
+                    *((double*)col->data[col->logical_size])= *((double*)value);
+                    break;
 
-            case STRING:
-                col->data[col->logical_size] = (COL_TYPE *) malloc (sizeof(char*));
-                *((char**)col->data[col->logical_size])= *((char**)value);
-                break;
+                case STRING:
+                    col->data[col->logical_size] = (COL_TYPE *) malloc (sizeof(char*));
+                    *((char**)col->data[col->logical_size])= *((char**)value);
+                    break;
 
-            case STRUCTURE:
+                case STRUCTURE:
                 col->data[col->logical_size] = (COL_TYPE *) malloc (sizeof(void*));
                 *((void**)col->data[col->logical_size])= *((void**)value);
                 break;
@@ -263,16 +285,17 @@ int insert_value(COLUMN *col, void *value){
 }
 
 /**
-* @brief: convert a random value who isn't in the CDATAFRAME
-* param1: Pointer to the value
-* param2: type of the value
-* param3: Pointer to the strings who the new value is storage
-* param4: size of the new strings
+* @brief: convertie une valeur hors d'un CDATAFRAME
+* param1: Pointeur sur une valeur
+* param2: type de la valeur à convertir
+* param3: Pointeur sur le tableau qui stocke le résultat
+* param4: taille du tableau
 */
 
 void convert_research(void *value, ENUM_TYPE type, char *str, int size){
     switch(type){
         case NULLVAL:
+            //fonction permettant de transformer un type précis en chaîne de caractère
             snprintf(str, size, "%p", *((void**)value));
             break;
 

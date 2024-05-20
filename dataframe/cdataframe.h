@@ -44,7 +44,7 @@ void print_column_name(CDATAFRAME *cdf);
  * we follow this system [start , finish[
 */
 
-void print_cols_CDATAFRAME(CDATAFRAME *cdf, int start, int finish);
+void print_cols_CDATAFRAME(CDATAFRAME *cdf, int start, int end);
 
 /**
 * @brief: print of selection rows
@@ -53,7 +53,7 @@ void print_cols_CDATAFRAME(CDATAFRAME *cdf, int start, int finish);
 * param3: the end of the print columns
  * we follow this system [start , finish[
 */
-void print_rows_CDATAFRAME(CDATAFRAME *cdf, int start, int finish);
+void print_rows_CDATAFRAME(CDATAFRAME *cdf, int start, int end);
 
 /**
 * @breif: hard filling of the CDATAFRAME
@@ -97,18 +97,13 @@ void rename_column(CDATAFRAME *cdf, int index, char *new_name);
 */
 void get_value_by_index(CDATAFRAME *cdf, unsigned int row, unsigned int col);
 
-
 void replace_value_by_index(CDATAFRAME *cdf, unsigned int row, unsigned int col, void* value);
 
-int compare(CDATAFRAME *cdf, void *value, ENUM_TYPE value_type, int state);
+int compare(CDATAFRAME *cdf, void *value, ENUM_TYPE value_type, STATE state);
 
-unsigned int equal(CDATAFRAME *cdf, void *value, ENUM_TYPE value_type);
-
-unsigned int higher(CDATAFRAME *cdf, void *value, ENUM_TYPE value_type);
 
 BOOL search_value(CDATAFRAME *cdf, void *value, ENUM_TYPE value_type);
 
-unsigned int lower(CDATAFRAME *cdf, void *value, ENUM_TYPE value_type);
 
 
 
