@@ -27,12 +27,11 @@ typedef struct{
     unsigned int physical_size;
     unsigned int logical_size;
     ENUM_TYPE type;
-    COL_TYPE **data;
-    unsigned  long long int *index;
+    COL_TYPE **data; // pointeur sur le tableau de pointeur
 } COLUMN;
 
 typedef struct lnode_ {
-    void *data; // Pointer to a column
+    void *data; // Pointeur sur la colonne
     struct lnode_ *prev;
     struct lnode_ *next;
 } lnode;
@@ -48,6 +47,9 @@ typedef enum {
     False, True
 }BOOL;
 
+typedef enum {
+    lower, equal, higher
+}STATE;
 
 
 #endif //CDATAFRAME_BOTTALICO_MATTEI__F_SETTING_H
