@@ -3,12 +3,6 @@
 
 Ceci est un projet open source que vous pouvez retrouver sur github [lien du github](https://github.com/Mattei-Theophile/CDataframe-Bottalico-Mattei--F)
 
-réalisé par Bottalico Thomas et Matteï Théophile, deux étudiants d'Efrei Paris de la promotion 2028
-
-Il n'existe aucun affichage affichage, c'est pour cela qu'à la fin du README
-
-
-
 
 **langage utilisé** : C version C23
 
@@ -20,8 +14,6 @@ Il n'existe aucun affichage affichage, c'est pour cela qu'à la fin du README
     Elle utilise les listes doublements chainées pour permettre d'avoir une flexibilité et une rapidité d'éxécution
     
     L'utilité de la bibliothèque CPandas est de trier, organiser et modifier un tableau soit remplis en dur ou bien via l'utilisateur
-
-
 
 ## Fonctionnement du programme
 ### CDATAFRAME.C/.H
